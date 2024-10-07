@@ -31,9 +31,7 @@ target_link_libraries(${MODULE}
 )
 #@- =========================== END OF USER CONFIGURATION ===============================
 
-add_definitions( 
-  -DOATPP_SWAGGER_RES_PATH="/home/robin/.conan2/p/oatpp32bb770e16c3c/s/src/res"
-)
+target_compile_definitions(${MODULE} PUBLIC OATPP_SWAGGER_RES_PATH="${oatpp-swagger_INCLUDE_DIR}/../bin/oatpp-swagger/res")
 target_compile_features(${MODULE} PUBLIC cxx_std_17)
 
 if(WIN32)
