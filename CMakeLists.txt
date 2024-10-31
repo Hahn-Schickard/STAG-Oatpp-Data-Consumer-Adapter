@@ -36,7 +36,7 @@ include(compiler_settings)
 #@+ ====================== User CMAKE_OPTIONS configuration ========================
 # User defined options and cmake variables are set here
 #@- ===================== END OF USER CONFIGURATION ================================
-
+find_package(GTest REQUIRED)
 #@+ ==================== User CMAKE_INCLUDES configuration =======================
 # User defined cmake module includes go here
 #@- ======================== END OF USER CONFIGURATION ============================
@@ -48,6 +48,7 @@ endif()
 #@+ ======================== User PACKAGES configuration ===========================
 find_package(oatpp REQUIRED)
 find_package(oatpp-swagger REQUIRED)
+find_package(Data_Consumer_Adapter_Interface REQUIRED)
 #@- ========================= END OF USER CONFIGURATION ============================
 
 add_subdirectory(sources)
