@@ -19,7 +19,7 @@ public:
     oatpp::web::server::api::Endpoints docEndpoints;
 
     /* Create MyController and add all of its endpoints to router */
-    auto myController = std::make_shared<MyController>();
+    auto myController = std::make_shared<MyController>(devices_);
     docEndpoints.append(router->addController(myController)->getEndpoints());
     router->addController(
         oatpp::swagger::Controller::createShared(docEndpoints));
@@ -42,13 +42,14 @@ public:
   void start() { run(); }
   void stop() {}
   void add(Information_Model::NonemptyDevicePtr device) {
-    devices_.emplace(device->getElementId(), device);
+    devices_->emplace(device->getElementId(), device);
   }
   void remove(const std::string& id) {}
 
 private:
   void run() { server_->run(); }
   shared_ptr<oatpp::network::Server> server_;
-  std::unordered_map<std::string, Information_Model::NonemptyDevicePtr>
-      devices_;
+  shared_ptr<unordered_map<std::string, Information_Model::NonemptyDevicePtr>>
+      devices_ = make_shared<
+          unordered_map<std::string, Information_Model::NonemptyDevicePtr>>();
 };

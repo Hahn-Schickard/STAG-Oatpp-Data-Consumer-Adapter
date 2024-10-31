@@ -35,8 +35,8 @@ int main(int argc, char* argv[]) {
 
   auto event_source = make_shared<EventSourceFake>();
   auto adapter = Adapter(event_source);
-  adapter.start();
   registerDevices(event_source);
+  adapter.start();
   return 0;
 }
 const static vector<string> device_ids{"base_id_1", "base_id_2"};
