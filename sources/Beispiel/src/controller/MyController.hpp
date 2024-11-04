@@ -14,6 +14,7 @@ using namespace std;
 class MyController : public oatpp::web::server::api::ApiController {
 public:
   using UserDtoPtr = oatpp::data::mapping::type::DTOWrapper<UserDto>;
+  using Device_DTOPtr = oatpp::data::mapping::type::DTOWrapper<Device_DTO>;
 
   MyController(
       shared_ptr<
@@ -38,63 +39,20 @@ public:
   }
 
   ENDPOINT("GET", "/devices/{deviceId}", checkdevice, PATH(String, deviceId)) {
-    // Suche nach der deviceId in der devices-Map
+
     auto deviceIt = devices->find(deviceId);
 
-    // Überprüfen, ob das Gerät gefunden wurde
     if (deviceIt != devices->end()) {
-      return createResponse(
-          Status::CODE_200, "Device found: " + deviceIt->first);
+      auto device_ptr = deviceIt->second;
+      Device_DTOPtr deviceDto = Device_DTOPtr::createShared();
+      deviceDto->refID = device_ptr->getElementId();
+      deviceDto->name = device_ptr->getElementName();
+      deviceDto->desc = device_ptr->getElementDescription();
+
+      return createDtoResponse(Status::CODE_201, deviceDto);
     }
 
-    // Wenn die deviceId nicht existiert, gib 404 zurück
     return createResponse(Status::CODE_404, "Device not found!");
-  }
-
-  ENDPOINT("GET", "/check/{userId}", checkId, PATH(Int32, userId)) {
-    if (auto it = user_map.find(userId); it != user_map.end()) {
-      return createResponse(Status::CODE_200, "ID already taken");
-    } else {
-      return createResponse(Status::CODE_400, "ID not found");
-    }
-  }
-
-  ENDPOINT("PUT", "/users/{userId}", CreateUserById, PATH(Int32, userId)) {
-
-    if (user_map.find(userId) == user_map.end()) {
-
-      auto user = UserDto::createShared();
-      user->name = "Robin";
-      user->surname = "Weiler";
-      user->age = 23;
-      user->familyMembers = {};
-      user->additionalNotes = {};
-
-      auto brother = UserDto::createShared();
-      brother->name = "Herbert";
-      brother->surname = "Weiler";
-      brother->age = 22;
-
-      auto sister = UserDto::createShared();
-      sister->name = "Laura";
-      sister->surname = "Weiler";
-      sister->age = 20;
-
-      user_map.emplace(userId, user);
-      user_map.emplace(userId + 1, brother);
-      user_map.emplace(userId + 2, sister);
-
-      return createDtoResponse(Status::CODE_201, user);
-    } else {
-
-      return createResponse(
-          Status::CODE_400, "ID already exists, user creation failed");
-    }
-  }
-
-  ENDPOINT("POST", "/users", createUser, BODY_DTO(Object<UserDto>, userDto)) {
-
-    return createDtoResponse(Status::CODE_201, userDto);
   }
 };
 #include OATPP_CODEGEN_END(ApiController)
