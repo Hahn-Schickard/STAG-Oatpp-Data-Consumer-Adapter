@@ -15,6 +15,8 @@ class MyController : public oatpp::web::server::api::ApiController {
 public:
   using UserDtoPtr = oatpp::data::mapping::type::DTOWrapper<UserDto>;
   using Device_DTOPtr = oatpp::data::mapping::type::DTOWrapper<Device_DTO>;
+  using DeviceElement_DTOPtr =
+      oatpp::data::mapping::type::DTOWrapper<DeviceElement_DTO>;
 
   MyController(
       shared_ptr<
@@ -52,6 +54,26 @@ public:
       return createDtoResponse(Status::CODE_201, deviceDto);
     }
 
+    return createResponse(Status::CODE_404, "Device not found!");
+  }
+
+  ENDPOINT("GET", "/devices/{deviceId}/{elementId}/type", getElementType,
+      PATH(String, deviceId), PATH(String, elementId)) {
+    auto deviceIt = devices->find(deviceId);
+    if (deviceIt != devices->end()) {
+      auto device_ptr = deviceIt->second;
+      auto element = device_ptr->getDeviceElement(elementId);
+
+      if (element != nullptr) {
+        DeviceElement_DTOPtr elementDto = DeviceElement_DTOPtr::createShared();
+        elementDto->elementtype = Enum<ElementType>::getEntryByIndex(
+            static_cast<v_int32>(element->getElementType()))
+                                      .name.std_str();
+        return createDtoResponse(Status::CODE_200, elementDto);
+      } else {
+        return createResponse(Status::CODE_404, "Element not found!");
+      }
+    }
     return createResponse(Status::CODE_404, "Device not found!");
   }
 };

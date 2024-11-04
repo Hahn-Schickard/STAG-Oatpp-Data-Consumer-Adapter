@@ -28,7 +28,16 @@ class Named_Element_DTO : public oatpp ::DTO {
 
 class Device_DTO : public Named_Element_DTO {
   DTO_INIT(Device_DTO, Named_Element_DTO)
+  /*  DTO_FIELD(Object<DeviceElementGroupDTO>, elements); */
 };
 
+ENUM(ElementType, v_int32, VALUE(GROUP, 0, "Group"),
+    VALUE(READABLE, 1, "Readable"), VALUE(WRITABLE, 2, "Writable"),
+    VALUE(OBSERVABLE, 3, "Observable"), VALUE(FUNCTION, 4, "Function"))
+class DeviceElement_DTO : public Named_Element_DTO {
+  DTO_INIT(DeviceElement_DTO, Named_Element_DTO)
+
+  DTO_FIELD(Enum<ElementType>::AsString, elementtype);
+};
 #include OATPP_CODEGEN_END(DTO)
 #endif
