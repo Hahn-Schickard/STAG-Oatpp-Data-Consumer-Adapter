@@ -9,35 +9,42 @@
 class UserDto : public oatpp::DTO {
   DTO_INIT(UserDto, DTO)
 
-  DTO_FIELD(String, name, "First-Name");
-  DTO_FIELD(String, surname, "Family-Name");
-  DTO_FIELD(Int32, age);
-  DTO_FIELD(Fields<List<Object<UserDto>>>,
+  DTO_FIELD(oatpp::String, name, "First-Name");
+  DTO_FIELD(oatpp::String, surname, "Family-Name");
+  DTO_FIELD(oatpp::Int32, age);
+  DTO_FIELD(oatpp::Fields<oatpp::List<oatpp::Object<UserDto>>>,
       familyMembers); ///< Map<String, List<User>>
-  DTO_FIELD(Fields<String>, additionalNotes); ///< Map<String, String>
+  DTO_FIELD(
+      oatpp::Fields<oatpp::String>, additionalNotes); ///< Map<String, String>
 };
 
-class Named_Element_DTO : public oatpp ::DTO {
+class Named_Element_DTO : public oatpp::DTO {
   DTO_INIT(Named_Element_DTO, DTO)
 
-  DTO_FIELD(String, refID, "refID");
-  DTO_FIELD(String, name, "name");
-  DTO_FIELD(String, desc, "desc");
+  DTO_FIELD(oatpp::String, refID, "refID");
+  DTO_FIELD(oatpp::String, name, "name");
+  DTO_FIELD(oatpp::String, desc, "desc");
+};
+
+class Elements_DTO : public Named_Element_DTO {
+  DTO_INIT(Elements_DTO, Named_Element_DTO)
+};
+
+ENUM(ElementType, v_int32, VALUE(GROUP, 0, "Group"),
+    VALUE(READABLE, 1, "Readable"), VALUE(WRITABLE, 2, "Writable"),
+    VALUE(OBSERVABLE, 3, "Observable"), VALUE(FUNCTION, 4, "Function"))
+
+class DeviceElement_DTO : public Named_Element_DTO {
+  DTO_INIT(DeviceElement_DTO, Named_Element_DTO)
+  DTO_FIELD(oatpp::List<oatpp::Object<Elements_DTO>>,
+      elements); // Hier ist Elements_DTO jetzt bekannt
+  DTO_FIELD(oatpp::String, elementtype);
 };
 
 class Device_DTO : public Named_Element_DTO {
   DTO_INIT(Device_DTO, Named_Element_DTO)
-  /*  DTO_FIELD(Object<DeviceElementGroupDTO>, elements); */
+  DTO_FIELD(oatpp::List<oatpp::Object<DeviceElement_DTO>>, elements);
 };
 
-/*ENUM(ElementType, v_int32, VALUE(GROUP, 0, "Group"),
-   VALUE(READABLE, 1, "Readable"), VALUE(WRITABLE, 2, "Writable"),
-   VALUE(OBSERVABLE, 3, "Observable"), VALUE(FUNCTION, 4, "Function")) */
-
-class DeviceElement_DTO : public Named_Element_DTO {
-  DTO_INIT(DeviceElement_DTO, Named_Element_DTO)
-
-  DTO_FIELD(String, elementtype);
-};
 #include OATPP_CODEGEN_END(DTO)
 #endif
