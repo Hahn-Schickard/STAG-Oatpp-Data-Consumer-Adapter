@@ -8,6 +8,7 @@
 #include "oatpp/core/macro/codegen.hpp"
 #include "oatpp/core/macro/component.hpp"
 #include "oatpp/web/server/api/ApiController.hpp"
+#include <stdexcept>
 using namespace std;
 #include OATPP_CODEGEN_BEGIN(ApiController) ///< Begin Codegen
 
@@ -30,6 +31,14 @@ public:
   shared_ptr<unordered_map<std::string, Information_Model::NonemptyDevicePtr>>
       devices;
 
+  ENDPOINT_INFO(getDevices) {
+    info->summary = "Get Devices";
+    info->pathParams.add<String>("result").description =
+        "Type in ID of your Device.";
+    info->addResponse<Object<Device_DTO>>(Status::CODE_200, "application/json");
+    info->addResponse<String>(Status::CODE_404, "text/plain");
+  }
+
   ENDPOINT("GET", "/devices", getDevices) {
     std::string result;
 
@@ -38,6 +47,13 @@ public:
     }
 
     return createResponse(Status::CODE_200, result);
+  }
+  ENDPOINT_INFO(checkdevice) {
+    info->summary = "Check Device";
+    info->pathParams.add<String>("deviceId").description =
+        "Unique identifier for the device.";
+    info->addResponse<Object<Device_DTO>>(Status::CODE_200, "application/json");
+    info->addResponse<String>(Status::CODE_404, "text/plain");
   }
 
   ENDPOINT("GET", "/devices/{deviceId}", checkdevice, PATH(String, deviceId)) {
@@ -56,22 +72,38 @@ public:
 
     return createResponse(Status::CODE_404, "Device not found!");
   }
+  ENDPOINT_INFO(getElementType) {
+    info->summary = "Get Device Element Type";
+    info->pathParams.add<String>("deviceId").description =
+        "Unique identifier of the device containing the element.";
+    info->pathParams.add<String>("elementId").description =
+        "Unique identifier of the element within the device.";
+    info->addResponse<Object<DeviceElement_DTO>>(
+        Status::CODE_200, "application/json");
+    info->addResponse<String>(Status::CODE_404, "text/plain");
+    info->addResponse<String>(Status::CODE_500, "text/plain");
+  }
 
   ENDPOINT("GET", "/devices/{deviceId}/{elementId}/type", getElementType,
       PATH(String, deviceId), PATH(String, elementId)) {
     auto deviceIt = devices->find(deviceId);
     if (deviceIt != devices->end()) {
       auto device_ptr = deviceIt->second;
-      auto element = device_ptr->getDeviceElement(elementId);
+      try {
+        auto id = elementId.getValue("");
+        auto element = device_ptr->getDeviceElement(id);
 
-      if (element != nullptr) {
-        DeviceElement_DTOPtr elementDto = DeviceElement_DTOPtr::createShared();
-        elementDto->elementtype = Enum<ElementType>::getEntryByIndex(
-            static_cast<v_int32>(element->getElementType()))
-                                      .name.std_str();
-        return createDtoResponse(Status::CODE_200, elementDto);
-      } else {
-        return createResponse(Status::CODE_404, "Element not found!");
+        if (element != nullptr) {
+          DeviceElement_DTOPtr elementDto =
+              DeviceElement_DTOPtr::createShared();
+          elementDto->elementtype = toString(element->getElementType());
+          return createDtoResponse(Status::CODE_200, elementDto);
+        } else {
+          return createResponse(Status::CODE_404, "Element not found!");
+        }
+      } catch (const std::exception& ex) {
+        return createResponse(
+            Status::CODE_404, string("Exception Error ") + ex.what());
       }
     }
     return createResponse(Status::CODE_404, "Device not found!");
