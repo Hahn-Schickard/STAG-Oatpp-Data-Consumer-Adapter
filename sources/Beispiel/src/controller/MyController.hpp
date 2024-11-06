@@ -2,7 +2,6 @@
 #define MyController_hpp
 
 #include "../dto/DTOs.hpp"
-
 #include "Information_Model/Device.hpp"
 #include "oatpp/core/data/mapping/type/Primitive.hpp"
 #include "oatpp/core/macro/codegen.hpp"
@@ -10,7 +9,7 @@
 #include "oatpp/web/server/api/ApiController.hpp"
 #include <stdexcept>
 using namespace std;
-#include OATPP_CODEGEN_BEGIN(ApiController) ///< Begin Codegen
+#include OATPP_CODEGEN_BEGIN(ApiController)
 
 class MyController : public oatpp::web::server::api::ApiController {
 public:
@@ -30,18 +29,24 @@ public:
   std::unordered_map<long, UserDtoPtr> user_map;
   shared_ptr<unordered_map<std::string, Information_Model::NonemptyDevicePtr>>
       devices;
+
+  DeviceElement_DTOPtr getDeviceElement(
+      const Information_Model::NonemptyDeviceElementPtr& element) {
+    auto elementDto = DeviceElement_DTO::createShared();
+    elementDto->elementtype = toString(element->getElementType());
+    elementDto->refID = element->getElementId();
+    elementDto->name = element->getElementName();
+    elementDto->desc = element->getElementDescription();
+    return elementDto;
+  }
+
   oatpp::List<oatpp::Object<DeviceElement_DTO>> getDeviceElements(
       const Information_Model::NonemptyDevicePtr& device_ptr) {
     auto elements =
         oatpp::List<oatpp::Object<DeviceElement_DTO>>::createShared();
     for (auto& element :
         device_ptr->getDeviceElementGroup()->getSubelements()) {
-      auto elementDto = DeviceElement_DTO::createShared();
-      elementDto->elementtype = toString(element->getElementType());
-      elementDto->refID = device_ptr->getElementId();
-      elementDto->name = device_ptr->getElementName();
-      elementDto->desc = device_ptr->getElementDescription();
-      elements->push_back(elementDto);
+      elements->push_back(getDeviceElement(element));
     }
     return elements;
   }
@@ -56,13 +61,12 @@ public:
 
   ENDPOINT("GET", "/devices", getDevices) {
     std::string result;
-
     for (const auto& device : *devices) {
       result += device.first + " ";
     }
-
     return createResponse(Status::CODE_200, result);
   }
+
   ENDPOINT_INFO(checkdevice) {
     info->summary = "Check Device";
     info->pathParams.add<String>("deviceId").description =
@@ -76,15 +80,11 @@ public:
 
     if (deviceIt != devices->end()) {
       auto device_ptr = deviceIt->second;
-
       Device_DTOPtr deviceDto = Device_DTOPtr::createShared();
       deviceDto->refID = device_ptr->getElementId();
       deviceDto->name = oatpp::String(device_ptr->getElementName());
       deviceDto->desc = oatpp::String(device_ptr->getElementDescription());
-
-      auto elements = getDeviceElements(device_ptr);
-      deviceDto->elements = elements;
-
+      deviceDto->elements = getDeviceElements(device_ptr);
       return createDtoResponse(Status::CODE_200, deviceDto);
     }
 
@@ -113,10 +113,7 @@ public:
         auto element = device_ptr->getDeviceElement(id);
 
         if (element != nullptr) {
-          DeviceElement_DTOPtr elementDto =
-              DeviceElement_DTOPtr::createShared();
-          elementDto->elementtype = toString(element->getElementType());
-          return createDtoResponse(Status::CODE_200, elementDto);
+          return createDtoResponse(Status::CODE_200, getDeviceElement(element));
         } else {
           return createResponse(Status::CODE_404, "Element not found!");
         }
@@ -134,22 +131,20 @@ public:
     if (deviceIt != devices->end()) {
       auto device_ptr = deviceIt->second;
       try {
-        auto device_ptr = deviceIt->second;
         auto element = device_ptr->getDeviceElement(elementId);
-        DeviceElement_DTOPtr elementDto = DeviceElement_DTOPtr::createShared();
-        elementDto->elementtype = toString(element->getElementType());
-        elementDto->refID = device_ptr->getElementId();
-        elementDto->name = device_ptr->getElementName();
-        elementDto->desc = device_ptr->getElementDescription();
-
-        return createDtoResponse(Status::CODE_200, elementDto);
-
+        if (element != nullptr) {
+          return createDtoResponse(Status::CODE_200, getDeviceElement(element));
+        } else {
+          return createResponse(Status::CODE_404, "Element not found!");
+        }
       } catch (const std::exception& ex) {
         return createResponse(Status::CODE_404, "Device not found!");
       }
-    } else
+    } else {
       return createResponse(Status::CODE_404, "Device not found");
+    }
   }
 };
+
 #include OATPP_CODEGEN_END(ApiController)
 #endif
