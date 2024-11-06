@@ -9,6 +9,7 @@
 #include "oatpp/web/server/api/ApiController.hpp"
 #include <stdexcept>
 using namespace std;
+using Metric_DTOPtr = oatpp::data::mapping::type::DTOWrapper<Metric_DTO>;
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
 class MyController : public oatpp::web::server::api::ApiController {
@@ -51,6 +52,16 @@ public:
       }
     }
     return elementDto;
+  }
+
+  Metric_DTOPtr getReadable(
+      const Information_Model::NonemptyMetricPtr& element) {
+    auto metricDto = Metric_DTO::createShared();
+  }
+
+  Metric_DTOPtr getWriteable(
+      const Information_Model::NonemptyWritableMetricPtr& element) {
+    auto metricDto = Metric_DTO::createShared();
   }
 
   oatpp::List<oatpp::Object<DeviceElement_DTO>> getDeviceElements(
