@@ -30,6 +30,21 @@ public:
   std::unordered_map<long, UserDtoPtr> user_map;
   shared_ptr<unordered_map<std::string, Information_Model::NonemptyDevicePtr>>
       devices;
+  oatpp::List<oatpp::Object<DeviceElement_DTO>> getDeviceElements(
+      const Information_Model::NonemptyDevicePtr& device_ptr) {
+    auto elements =
+        oatpp::List<oatpp::Object<DeviceElement_DTO>>::createShared();
+    for (auto& element :
+        device_ptr->getDeviceElementGroup()->getSubelements()) {
+      auto elementDto = DeviceElement_DTO::createShared();
+      elementDto->elementtype = toString(element->getElementType());
+      elementDto->refID = device_ptr->getElementId();
+      elementDto->name = device_ptr->getElementName();
+      elementDto->desc = device_ptr->getElementDescription();
+      elements->push_back(elementDto);
+    }
+    return elements;
+  }
 
   ENDPOINT_INFO(getDevices) {
     info->summary = "Get Devices";
@@ -61,24 +76,13 @@ public:
 
     if (deviceIt != devices->end()) {
       auto device_ptr = deviceIt->second;
+
       Device_DTOPtr deviceDto = Device_DTOPtr::createShared();
       deviceDto->refID = device_ptr->getElementId();
       deviceDto->name = oatpp::String(device_ptr->getElementName());
       deviceDto->desc = oatpp::String(device_ptr->getElementDescription());
 
-      auto elements =
-          oatpp::List<oatpp::Object<DeviceElement_DTO>>::createShared();
-
-      for (auto element :
-          device_ptr->getDeviceElementGroup()->getSubelements()) {
-        auto elementDto = DeviceElement_DTO::createShared();
-        elementDto->elementtype = toString(element->getElementType());
-        elementDto->refID = device_ptr->getElementId();
-        elementDto->name = device_ptr->getElementName();
-        elementDto->desc = device_ptr->getElementDescription();
-        elements->push_back(elementDto);
-      }
-
+      auto elements = getDeviceElements(device_ptr);
       deviceDto->elements = elements;
 
       return createDtoResponse(Status::CODE_200, deviceDto);
