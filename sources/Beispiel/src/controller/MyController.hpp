@@ -37,6 +37,19 @@ public:
     elementDto->refID = element->getElementId();
     elementDto->name = element->getElementName();
     elementDto->desc = element->getElementDescription();
+
+    if (element->getElementType() == Information_Model::ElementType::GROUP) {
+      auto subelements =
+          std::get<Information_Model::NonemptyDeviceElementGroupPtr>(
+              element->functionality);
+
+      elementDto->elements = oatpp::List<DeviceElement_DTOPtr>::createShared();
+
+      for (auto& subelement : subelements->getSubelements()) {
+        auto subelementDto = getDeviceElement(subelement);
+        elementDto->elements->push_back(subelementDto);
+      }
+    }
     return elementDto;
   }
 
