@@ -7,9 +7,10 @@
 #include "oatpp/core/macro/codegen.hpp"
 #include "oatpp/core/macro/component.hpp"
 #include "oatpp/web/server/api/ApiController.hpp"
+#include <iostream>
 #include <stdexcept>
 using namespace std;
-using Metric_DTOPtr = oatpp::data::mapping::type::DTOWrapper<Metric_DTO>;
+
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
 class MyController : public oatpp::web::server::api::ApiController {
@@ -18,7 +19,7 @@ public:
   using Device_DTOPtr = oatpp::data::mapping::type::DTOWrapper<Device_DTO>;
   using DeviceElement_DTOPtr =
       oatpp::data::mapping::type::DTOWrapper<DeviceElement_DTO>;
-
+  using Metric_DTOPtr = oatpp::data::mapping::type::DTOWrapper<Metric_DTO>;
   MyController(
       shared_ptr<
           unordered_map<std::string, Information_Model::NonemptyDevicePtr>>
@@ -56,9 +57,106 @@ public:
 
   Metric_DTOPtr getReadable(
       const Information_Model::NonemptyMetricPtr& element) {
-    auto metricDto = Metric_DTO::createShared();
-  }
 
+    auto metricDto = Metric_DTO::createShared();
+
+    auto metricValue = element->getMetricValue();
+
+    switch (element->getDataType()) {
+    case Information_Model::DataType::BOOLEAN:
+      std::cout << "DataType is Boolean" << std::endl;
+      if (std::holds_alternative<bool>(metricValue)) {
+        bool boolValue = std::get<bool>(metricValue);
+        std::cout << "Value: " << boolValue << std::endl;
+      } else {
+        std::cerr << "Error: Expected bool value, but got a different type."
+                  << std::endl;
+      }
+      break;
+
+    case Information_Model::DataType::INTEGER:
+      std::cout << "DataType is Integer" << std::endl;
+      if (std::holds_alternative<int>(metricValue)) {
+        int intValue = std::get<int>(metricValue);
+        std::cout << "Value: " << intValue << std::endl;
+      } else {
+        std::cerr << "Error: Expected int value, but got a different type."
+                  << std::endl;
+      }
+      break;
+
+    case Information_Model::DataType::UNSIGNED_INTEGER:
+      std::cout << "DataType is Unsigned Integer" << std::endl;
+      if (std::holds_alternative<unsigned int>(metricValue)) {
+        unsigned int uintValue = std::get<unsigned int>(metricValue);
+        std::cout << "Value: " << uintValue << std::endl;
+      } else {
+        std::cerr
+            << "Error: Expected unsigned int value, but got a different type."
+            << std::endl;
+      }
+      break;
+
+    case Information_Model::DataType::DOUBLE:
+      std::cout << "DataType is Double" << std::endl;
+      if (std::holds_alternative<double>(metricValue)) {
+        double doubleValue = std::get<double>(metricValue);
+        std::cout << "Value: " << doubleValue << std::endl;
+      } else {
+        std::cerr << "Error: Expected double value, but got a different type."
+                  << std::endl;
+      }
+      break;
+
+    case Information_Model::DataType::STRING:
+      std::cout << "DataType is String" << std::endl;
+      if (std::holds_alternative<std::string>(metricValue)) {
+        std::string stringValue = std::get<std::string>(metricValue);
+        std::cout << "Value: " << stringValue << std::endl;
+      } else {
+        std::cerr << "Error: Expected string value, but got a different type."
+                  << std::endl;
+      }
+      break;
+
+    case Information_Model::DataType::OPAQUE:
+      std::cout << "DataType is Opaque" << std::endl;
+      if (std::holds_alternative<std::vector<uint8_t>>(metricValue)) {
+        auto opaqueValue = std::get<std::vector<uint8_t>>(metricValue);
+        std::cout << "Value (opaque data): ";
+        for (auto byte : opaqueValue) {
+          std::cout << static_cast<int>(byte) << " ";
+        }
+        std::cout << std::endl;
+      } else {
+        std::cerr << "Error: Expected opaque data (vector<uint8_t>), but got a "
+                     "different type."
+                  << std::endl;
+      }
+      break;
+
+    default:
+      std::cout << "DataType is Unknown" << std::endl;
+      break;
+    }
+
+    return metricDto;
+  }
+  ENDPOINT("GET", "/devices/{deviceId}/{getType}", getDeviceValue,
+      PATH(String, deviceId), PATH(String, getType)) {
+
+    auto deviceIt = devices->find(deviceId);
+
+    if (deviceIt != devices->end()) {
+      auto device_ptr = deviceIt->second;
+
+      auto metricDto = getReadable(device_ptr);
+
+      return createDtoResponse(Status::CODE_200, metricDto);
+    } else {
+      return createResponse(Status::CODE_404, "Device not found!");
+    }
+  }
   Metric_DTOPtr getWriteable(
       const Information_Model::NonemptyWritableMetricPtr& element) {
     auto metricDto = Metric_DTO::createShared();

@@ -32,13 +32,13 @@ ENUM(ElementType, v_int32, VALUE(GROUP, 0, "Group"),
 
 class DeviceElement_DTO : public Named_Element_DTO {
   DTO_INIT(DeviceElement_DTO, Named_Element_DTO)
-  DTO_FIELD(oatpp::List<oatpp::Object<DeviceElement_DTO>>,
-      elements); // Hier ist Elements_DTO jetzt bekannt
+  DTO_FIELD(oatpp::List<oatpp::Object<DeviceElement_DTO>>, elements);
   DTO_FIELD(oatpp::String, elementtype);
 };
 
 class Metric_DTO : public Named_Element_DTO {
   DTO_INIT(Metric_DTO, Named_Element_DTO)
+  DTO_FIELD(oatpp::String, value);
 };
 
 class Device_DTO : public Named_Element_DTO {
