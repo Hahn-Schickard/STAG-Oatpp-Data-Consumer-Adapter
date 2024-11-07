@@ -36,8 +36,8 @@ class DeviceElement_DTO : public Named_Element_DTO {
   DTO_FIELD(oatpp::String, elementtype);
 };
 
-class Metric_DTO : public Named_Element_DTO {
-  DTO_INIT(Metric_DTO, Named_Element_DTO)
+class Metric_DTO : public oatpp::DTO {
+  DTO_INIT(Metric_DTO, DTO)
   DTO_FIELD(oatpp::String, value);
 };
 

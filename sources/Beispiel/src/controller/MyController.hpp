@@ -6,9 +6,13 @@
 #include "oatpp/core/data/mapping/type/Primitive.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 #include "oatpp/core/macro/component.hpp"
+#include "oatpp/encoding/Base64.hpp"
 #include "oatpp/web/server/api/ApiController.hpp"
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
+#include <string>
 using namespace std;
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
@@ -31,6 +35,11 @@ public:
   std::unordered_map<long, UserDtoPtr> user_map;
   shared_ptr<unordered_map<std::string, Information_Model::NonemptyDevicePtr>>
       devices;
+  std::string decodeBase64(const oatpp::String& encoded) {
+    auto decoded =
+        oatpp::encoding::Base64::decode(encoded->c_str(), encoded->size());
+    return std::string((const char*)decoded->data(), decoded->size());
+  }
 
   DeviceElement_DTOPtr getDeviceElement(
       const Information_Model::NonemptyDeviceElementPtr& element) {
@@ -68,6 +77,7 @@ public:
       if (std::holds_alternative<bool>(metricValue)) {
         bool boolValue = std::get<bool>(metricValue);
         std::cout << "Value: " << boolValue << std::endl;
+        metricDto->value = to_string(boolValue);
       } else {
         std::cerr << "Error: Expected bool value, but got a different type."
                   << std::endl;
@@ -76,9 +86,10 @@ public:
 
     case Information_Model::DataType::INTEGER:
       std::cout << "DataType is Integer" << std::endl;
-      if (std::holds_alternative<int>(metricValue)) {
-        int intValue = std::get<int>(metricValue);
+      if (std::holds_alternative<intmax_t>(metricValue)) {
+        int intValue = std::get<intmax_t>(metricValue);
         std::cout << "Value: " << intValue << std::endl;
+        metricDto->value = to_string(intValue);
       } else {
         std::cerr << "Error: Expected int value, but got a different type."
                   << std::endl;
@@ -87,9 +98,10 @@ public:
 
     case Information_Model::DataType::UNSIGNED_INTEGER:
       std::cout << "DataType is Unsigned Integer" << std::endl;
-      if (std::holds_alternative<unsigned int>(metricValue)) {
-        unsigned int uintValue = std::get<unsigned int>(metricValue);
+      if (std::holds_alternative<uintmax_t>(metricValue)) {
+        unsigned int uintValue = std::get<uintmax_t>(metricValue);
         std::cout << "Value: " << uintValue << std::endl;
+        metricDto->value = to_string(uintValue);
       } else {
         std::cerr
             << "Error: Expected unsigned int value, but got a different type."
@@ -102,6 +114,7 @@ public:
       if (std::holds_alternative<double>(metricValue)) {
         double doubleValue = std::get<double>(metricValue);
         std::cout << "Value: " << doubleValue << std::endl;
+        metricDto->value = to_string(doubleValue);
       } else {
         std::cerr << "Error: Expected double value, but got a different type."
                   << std::endl;
@@ -128,6 +141,7 @@ public:
           std::cout << static_cast<int>(byte) << " ";
         }
         std::cout << std::endl;
+        /* metricDto->value = to_string(opaqueValue); */
       } else {
         std::cerr << "Error: Expected opaque data (vector<uint8_t>), but got a "
                      "different type."
@@ -142,17 +156,27 @@ public:
 
     return metricDto;
   }
-  ENDPOINT("GET", "/devices/{deviceId}/{getType}", getDeviceValue,
+  ENDPOINT("GET", "/devices/{deviceId}/{getValue}", getDeviceValue,
       PATH(String, deviceId), PATH(String, getType)) {
 
     auto deviceIt = devices->find(deviceId);
 
     if (deviceIt != devices->end()) {
       auto device_ptr = deviceIt->second;
+      try {
+        auto element = device_ptr->getDeviceElement(getType);
+        try {
+          auto metric = std::get<Information_Model::NonemptyMetricPtr>(
+              element->functionality);
+          auto metricDto = getReadable(metric);
 
-      auto metricDto = getReadable(device_ptr);
-
-      return createDtoResponse(Status::CODE_200, metricDto);
+          return createDtoResponse(Status::CODE_200, metricDto);
+        } catch (const exception& ex) {
+          return createResponse(Status::CODE_400, "Incorrect Element Value");
+        }
+      } catch (const exception& ex) {
+        return createResponse(Status::CODE_404, "Element not found");
+      }
     } else {
       return createResponse(Status::CODE_404, "Device not found!");
     }
@@ -160,6 +184,102 @@ public:
   Metric_DTOPtr getWriteable(
       const Information_Model::NonemptyWritableMetricPtr& element) {
     auto metricDto = Metric_DTO::createShared();
+    auto metricValue = element->getMetricValue();
+
+    switch (element->getDataType()) {
+    case Information_Model::DataType::BOOLEAN:
+      if (std::holds_alternative<bool>(metricValue)) {
+        bool boolValue = std::get<bool>(metricValue);
+        metricDto->value = to_string(boolValue);
+      }
+      break;
+
+    case Information_Model::DataType::INTEGER:
+      if (std::holds_alternative<intmax_t>(metricValue)) {
+        int intValue = std::get<intmax_t>(metricValue);
+        metricDto->value = to_string(intValue);
+      }
+      break;
+
+    case Information_Model::DataType::UNSIGNED_INTEGER:
+      if (std::holds_alternative<uintmax_t>(metricValue)) {
+        unsigned int uintValue = std::get<uintmax_t>(metricValue);
+        metricDto->value = to_string(uintValue);
+      }
+      break;
+
+    case Information_Model::DataType::DOUBLE:
+      if (std::holds_alternative<double>(metricValue)) {
+        double doubleValue = std::get<double>(metricValue);
+        metricDto->value = to_string(doubleValue);
+      }
+      break;
+
+    case Information_Model::DataType::STRING:
+      if (std::holds_alternative<std::string>(metricValue)) {
+        std::string stringValue = std::get<std::string>(metricValue);
+        metricDto->value = stringValue;
+      }
+      break;
+
+    case Information_Model::DataType::OPAQUE:
+      if (std::holds_alternative<std::vector<uint8_t>>(metricValue)) {
+        auto opaqueValue = std::get<std::vector<uint8_t>>(metricValue);
+        metricDto->value = "Opaque data (Base64)";
+      }
+      break;
+
+    default:
+      break;
+    }
+
+    return metricDto;
+  }
+  ENDPOINT("GET", "/devices/{deviceId}/metrics/{metricId}", getWritableMetric,
+      PATH(String, deviceId), PATH(String, metricId)) {
+
+    auto deviceIt = devices->find(deviceId);
+    if (deviceIt != devices->end()) {
+      auto device_ptr = deviceIt->second;
+      try {
+        auto element = device_ptr->getDeviceElement(metricId);
+        if (element != nullptr) {
+          auto writableMetric = getWriteable(element);
+          return createDtoResponse(Status::CODE_200, writableMetric);
+        } else {
+          return createResponse(Status::CODE_404, "Metric not found!");
+        }
+      } catch (const std::exception& ex) {
+        return createResponse(Status::CODE_500, "Error retrieving metric");
+      }
+    } else {
+      return createResponse(Status::CODE_404, "Device not found");
+    }
+  }
+  ENDPOINT("PUT", "/devices/{deviceId}/metrics/{metricId}", putWritableMetric,
+      PATH(String, deviceId), PATH(String, metricId)) {
+
+    auto deviceIt = devices->find(deviceId);
+    if (deviceIt != devices->end()) {
+      auto device_ptr = deviceIt->second;
+      try {
+        auto element = device_ptr->getDeviceElement(metricId);
+        if (element != nullptr) {
+          auto metric = std::get<Information_Model::NonemptyMetricPtr>(
+              element->functionality);
+          /* metric->setMetricValue(newValue);
+           */
+          return createResponse(
+              Status::CODE_200, "Metric updated successfully");
+        } else {
+          return createResponse(Status::CODE_404, "Metric not found");
+        }
+      } catch (const std::exception& ex) {
+        return createResponse(Status::CODE_500, "Error updating metric");
+      }
+    } else {
+      return createResponse(Status::CODE_404, "Device not found");
+    }
   }
 
   oatpp::List<oatpp::Object<DeviceElement_DTO>> getDeviceElements(
@@ -248,12 +368,14 @@ public:
   }
 
   ENDPOINT("GET", "/devices/{deviceId}/{elementId}", getElement,
-      PATH(String, deviceId), PATH(String, elementId)) {
+      PATH(String, deviceId), PATH(String, encodedElementId)) {
+    auto elementId = decodeBase64(encodedElementId);
     auto deviceIt = devices->find(deviceId);
     if (deviceIt != devices->end()) {
       auto device_ptr = deviceIt->second;
       try {
-        auto element = device_ptr->getDeviceElement(elementId);
+
+        auto element = device_ptr->getDeviceElement(deviceId);
         if (element != nullptr) {
           return createDtoResponse(Status::CODE_200, getDeviceElement(element));
         } else {
