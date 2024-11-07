@@ -156,15 +156,15 @@ public:
 
     return metricDto;
   }
-  ENDPOINT("GET", "/devices/{deviceId}/{getValue}", getDeviceValue,
-      PATH(String, deviceId), PATH(String, getType)) {
+  ENDPOINT("GET", "/devices/{deviceId}/metric/{getValue}", getDeviceValue,
+      PATH(String, deviceId), PATH(String, getValue)) {
 
     auto deviceIt = devices->find(deviceId);
 
     if (deviceIt != devices->end()) {
       auto device_ptr = deviceIt->second;
       try {
-        auto element = device_ptr->getDeviceElement(getType);
+        auto element = device_ptr->getDeviceElement(getValue);
         try {
           auto metric = std::get<Information_Model::NonemptyMetricPtr>(
               element->functionality);
@@ -244,7 +244,9 @@ public:
       try {
         auto element = device_ptr->getDeviceElement(metricId);
         if (element != nullptr) {
-          auto writableMetric = getWriteable(element);
+          auto metric = std::get<Information_Model::NonemptyWritableMetricPtr>(
+              element->functionality);
+          auto writableMetric = getWriteable(metric);
           return createDtoResponse(Status::CODE_200, writableMetric);
         } else {
           return createResponse(Status::CODE_404, "Metric not found!");
@@ -367,7 +369,7 @@ public:
     return createResponse(Status::CODE_404, "Device not found!");
   }
 
-  ENDPOINT("GET", "/devices/{deviceId}/{elementId}", getElement,
+  ENDPOINT("GET", "/devices/{deviceId}/{encodedElementId}", getElement,
       PATH(String, deviceId), PATH(String, encodedElementId)) {
     auto elementId = decodeBase64(encodedElementId);
     auto deviceIt = devices->find(deviceId);
