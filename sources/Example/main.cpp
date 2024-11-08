@@ -37,6 +37,15 @@ int main(int argc, char* argv[]) {
   auto adapter = Adapter(event_source);
   registerDevices(event_source);
   adapter.start();
+
+  std::cout << "Drücke 'q', um den Server zu stoppen." << std::endl;
+  char userInput;
+  while (std::tolower(std::cin.get()) != 'q') {
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+  }
+
+  std::cout << "Server wird gestoppt..." << std::endl;
+  adapter.stop();
   return 0;
 }
 const static vector<string> device_ids{"base_id_1", "base_id_2"};

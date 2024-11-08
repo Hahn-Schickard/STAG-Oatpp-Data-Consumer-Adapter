@@ -4,7 +4,7 @@
 #include "Information_Model/Device.hpp"
 #include "oatpp-swagger/Controller.hpp"
 #include "oatpp/network/Server.hpp"
-#include <thread> // Zum Hinzufügen von std::thread
+#include <thread>
 #include <unordered_map>
 
 using namespace std;
@@ -58,6 +58,9 @@ public:
   // Stoppt den Server
   void stop() {
     stopFlag = true;
+    if (server_) {
+      server_->stop();
+    }
     if (serverThread.joinable()) {
       serverThread.join();
     }

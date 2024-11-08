@@ -156,6 +156,13 @@ public:
 
     return metricDto;
   }
+  ENDPOINT_INFO(getDeviceValue) {
+    info->summary = "Get Device Value";
+    info->pathParams.add<String>("DeviceValue").description =
+        "Type in ID of your Device";
+    info->addResponse<Object<Metric_DTO>>(Status::CODE_200, "application/json");
+    info->addResponse<String>(Status::CODE_404, "text/plain");
+  }
   ENDPOINT("GET", "/devices/{deviceId}/metric/{getValue}", getDeviceValue,
       PATH(String, deviceId), PATH(String, getValue)) {
 
@@ -235,6 +242,13 @@ public:
 
     return metricDto;
   }
+  ENDPOINT_INFO(getWritableMetric) {
+    info->summary = "Get Writable Metric";
+    info->pathParams.add<String>("WritableMetric").description =
+        "Type in ID of your Device";
+    info->addResponse<Object<Metric_DTO>>(Status::CODE_200, "application/json");
+    info->addResponse<String>(Status::CODE_404, "text/plain");
+  }
   ENDPOINT("GET", "/devices/{deviceId}/metrics/{metricId}", getWritableMetric,
       PATH(String, deviceId), PATH(String, metricId)) {
 
@@ -257,6 +271,13 @@ public:
     } else {
       return createResponse(Status::CODE_404, "Device not found");
     }
+  }
+  ENDPOINT_INFO(putWritableMetric) {
+    info->summary = "Put Writabable Metric";
+    info->pathParams.add<String>("WritableMetric").description =
+        "Type in ID of your Device.";
+    info->addResponse<Object<Device_DTO>>(Status::CODE_200, "application/json");
+    info->addResponse<String>(Status::CODE_404, "text/plain");
   }
   ENDPOINT("PUT", "/devices/{deviceId}/metrics/{metricId}", putWritableMetric,
       PATH(String, deviceId), PATH(String, metricId)) {
@@ -297,7 +318,7 @@ public:
 
   ENDPOINT_INFO(getDevices) {
     info->summary = "Get Devices";
-    info->pathParams.add<String>("result").description =
+    info->pathParams.add<String>("GetDevices").description =
         "Type in ID of your Device.";
     info->addResponse<Object<Device_DTO>>(Status::CODE_200, "application/json");
     info->addResponse<String>(Status::CODE_404, "text/plain");
