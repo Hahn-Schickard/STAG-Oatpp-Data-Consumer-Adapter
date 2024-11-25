@@ -19,7 +19,6 @@ using namespace std;
 
 class MyController : public oatpp::web::server::api::ApiController {
 public:
-  using UserDtoPtr = oatpp::data::mapping::type::DTOWrapper<UserDto>;
   using Device_DTOPtr = oatpp::data::mapping::type::DTOWrapper<Device_DTO>;
   using DeviceElement_DTOPtr =
       oatpp::data::mapping::type::DTOWrapper<DeviceElement_DTO>;
@@ -32,7 +31,6 @@ public:
       : oatpp::web::server::api::ApiController(objectMapper),
         devices(devices_map) {}
 
-  std::unordered_map<long, UserDtoPtr> user_map;
   shared_ptr<unordered_map<std::string, Information_Model::NonemptyDevicePtr>>
       devices;
   std::string decodeBase64(const oatpp::String& encoded) {

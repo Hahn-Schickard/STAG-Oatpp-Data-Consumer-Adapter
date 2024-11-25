@@ -6,18 +6,6 @@
 
 #include OATPP_CODEGEN_BEGIN(DTO)
 
-class UserDto : public oatpp::DTO {
-  DTO_INIT(UserDto, DTO)
-
-  DTO_FIELD(oatpp::String, name, "First-Name");
-  DTO_FIELD(oatpp::String, surname, "Family-Name");
-  DTO_FIELD(oatpp::Int32, age);
-  DTO_FIELD(oatpp::Fields<oatpp::List<oatpp::Object<UserDto>>>,
-      familyMembers); ///< Map<String, List<User>>
-  DTO_FIELD(
-      oatpp::Fields<oatpp::String>, additionalNotes); ///< Map<String, String>
-};
-
 class Named_Element_DTO : public oatpp::DTO {
   DTO_INIT(Named_Element_DTO, DTO)
 

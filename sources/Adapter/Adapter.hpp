@@ -1,3 +1,5 @@
+#ifndef __Rest_Adapter_hpp
+#define __Rest_Adapter_hpp
 #include "../Beispiel/src/App.hpp"
 #include "Data_Consumer_Adapter_Interface/DataConsumerAdapterInterface.hpp"
 #include <memory>
@@ -19,3 +21,4 @@ private:
 };
 
 } // namespace Data_Consumer_Adapter
+#endif //__Rest_Adapter_hpp
