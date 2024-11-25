@@ -24,7 +24,7 @@ target_link_libraries(${MODULE}
 PUBLIC
                        #Private dependencies
                       Data_Consumer_Adapter_Interface::Data_Consumer_Adapter_Interface
-
+                     ${PROJECT_NAME}_Beispiel
                         #Public dependencies
 )
 #@- =========================== END OF USER CONFIGURATION ===============================
