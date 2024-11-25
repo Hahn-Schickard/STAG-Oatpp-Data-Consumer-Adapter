@@ -1,3 +1,5 @@
+#ifndef App_hpp
+#define App_hpp
 #include "Information_Model/Device.hpp"
 #include <oatpp/network/Server.hpp>
 
@@ -27,3 +29,4 @@ private:
       devices_ = make_shared<
           unordered_map<std::string, Information_Model::NonemptyDevicePtr>>();
 };
+#endif
