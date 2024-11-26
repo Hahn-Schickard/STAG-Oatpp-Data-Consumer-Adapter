@@ -1,16 +1,11 @@
 #include "App.hpp"
 #include "AppComponent.hpp"
-#include "RestInterface.hpp"
+
 #include "controller/MyController.hpp"
 
 #include "oatpp-swagger/Controller.hpp"
 
-using namespace std;
-
-RestInterfacePtr makeRestInterface() {
-  return std::make_shared<RestSchnittstelle>();
-}
-RestSchnittstelle::RestSchnittstelle() : stopFlag(false) {
+RestServer::RestServer() : stopFlag(false) {
   oatpp::base::Environment::init();
   /* Register Components in scope of run() method */
   AppComponent components;
@@ -41,16 +36,16 @@ RestSchnittstelle::RestSchnittstelle() : stopFlag(false) {
       connectionProvider, connectionHandler);
 }
 
-RestSchnittstelle::~RestSchnittstelle() {
+RestServer::~RestServer() {
   stop();
   oatpp::base::Environment::destroy();
 }
 
-void RestSchnittstelle::start() {
+void RestServer::start() {
   serverThread = std::thread([this]() { run(); });
 }
 
-void RestSchnittstelle::stop() {
+void RestServer::stop() {
   stopFlag = true;
   if (server_) {
     server_->stop();
@@ -60,10 +55,10 @@ void RestSchnittstelle::stop() {
   }
 }
 
-void RestSchnittstelle::add(Information_Model::NonemptyDevicePtr device) {
+void RestServer::add(Information_Model::NonemptyDevicePtr device) {
   devices_->emplace(device->getElementId(), device);
 }
 
-void RestSchnittstelle::remove(const std::string& id) { devices_->erase(id); }
+void RestServer::remove(const std::string& id) { devices_->erase(id); }
 
-void RestSchnittstelle::run() { server_->run(); }
+void RestServer::run() { server_->run(); }

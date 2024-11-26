@@ -1,6 +1,10 @@
 #ifndef RestInterface_hpp
 #define RestInterface_hpp
 
+#include "Information_Model/Device.hpp"
+#include <memory>
+#include <stdexcept>
+#include <string>
 class RestInterface {
 public:
   virtual ~RestInterface() = default;
@@ -18,7 +22,7 @@ public:
 
   virtual void remove(const std::string& id) {
     throw std::runtime_error(
-        "Called base RestInterface::remove(const std::string&) method")
+        "Called base RestInterface::remove(const std::string&) method");
   }
 };
 using RestInterfacePtr = std::shared_ptr<RestInterface>;

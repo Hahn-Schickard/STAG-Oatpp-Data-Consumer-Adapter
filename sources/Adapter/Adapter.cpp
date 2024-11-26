@@ -6,7 +6,7 @@
 namespace Data_Consumer_Adapter {
 Adapter::Adapter(ModelEventSourcePtr event_source)
     : DCAI(event_source, "Rest-Adapter") {
-  server_ = std::make_shared<RestSchnittstelle>();
+  server_ = std::make_shared<RestServer>();
 }
 
 void Adapter::start(std::vector<Information_Model::DevicePtr> devices) {

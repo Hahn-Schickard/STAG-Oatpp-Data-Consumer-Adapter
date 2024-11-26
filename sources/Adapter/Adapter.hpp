@@ -17,7 +17,7 @@ public:
 private:
   void registrate(Information_Model::NonemptyDevicePtr device) override;
   void deregistrate(const std::string& device_id) override;
-  std::shared_ptr<RestSchnittstelle> server_;
+  std::shared_ptr<RestServer> server_;
 };
 
 } // namespace Data_Consumer_Adapter
