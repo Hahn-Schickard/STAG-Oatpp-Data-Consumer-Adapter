@@ -1,5 +1,6 @@
 #ifndef App_hpp
 #define App_hpp
+#include "../../Adapter/RestInterface.hpp"
 #include "Information_Model/Device.hpp"
 #include <oatpp/network/Server.hpp>
 
@@ -13,10 +14,10 @@ public:
   RestSchnittstelle();
   ~RestSchnittstelle();
 
-  void start();
-  void stop();
-  void add(Information_Model::NonemptyDevicePtr device);
-  void remove(const std::string& id);
+  void start() override {}
+  void stop() override {}
+  void add(Information_Model::NonemptyDevicePtr device) override {}
+  void remove(const std::string& id) override {}
 
 private:
   void run();

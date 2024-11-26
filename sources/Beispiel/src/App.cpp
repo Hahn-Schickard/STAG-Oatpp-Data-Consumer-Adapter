@@ -1,11 +1,15 @@
 #include "App.hpp"
 #include "AppComponent.hpp"
+#include "RestInterface.hpp"
 #include "controller/MyController.hpp"
 
 #include "oatpp-swagger/Controller.hpp"
 
 using namespace std;
 
+RestInterfacePtr makeRestInterface() {
+  return std::make_shared<RestSchnittstelle>();
+}
 RestSchnittstelle::RestSchnittstelle() : stopFlag(false) {
   oatpp::base::Environment::init();
   /* Register Components in scope of run() method */
