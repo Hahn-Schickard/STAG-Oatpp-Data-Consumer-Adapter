@@ -29,6 +29,30 @@ public:
 void registerDevices(const shared_ptr<EventSourceFake>& event_source);
 void deregisterDevices(const shared_ptr<EventSourceFake>& event_source);
 
+void runForTime(int durationSeconds) {
+  auto start = chrono::steady_clock::now();
+  while (true) {
+    auto elapsed = chrono::steady_clock::now() - start;
+    if (chrono::duration_cast<chrono::seconds>(elapsed).count() >=
+        durationSeconds) {
+      cout << "Die Laufzeit von " << durationSeconds
+           << " Sekunden ist abgelaufen." << endl;
+      break;
+    }
+    this_thread::sleep_for(chrono::seconds(1));
+  }
+}
+
+void waitForQuit() {
+  cout << "Drücke 'Q' zum Beenden..." << endl;
+  while (true) {
+    if (tolower(cin.get()) == 'q') {
+      cout << "Programm wird gestoppt..." << endl;
+      break;
+    }
+    this_thread::sleep_for(chrono::seconds(1));
+  }
+}
 int main(int argc, char* argv[]) {
   auto repo = make_shared<SPD_LoggerRepository>();
   LoggerManager::initialise(repo);
@@ -38,13 +62,21 @@ int main(int argc, char* argv[]) {
   registerDevices(event_source);
   adapter.start();
 
-  std::cout << "Drücke 'q', um den Server zu stoppen." << std::endl;
+  if (argc == 2) {
+    int duration = stoi(argv[1]);
+    cout << "Runner läuft für " << duration << "Sekunden" << endl;
+    runForTime(duration);
+  } else {
+    waitForQuit();
+  }
+
+  /* std::cout << "Drücke 'q', um den Server zu stoppen." << std::endl;
   char userInput;
   while (std::tolower(std::cin.get()) != 'q') {
     std::this_thread::sleep_for(std::chrono::seconds(1));
   }
 
-  std::cout << "Server wird gestoppt..." << std::endl;
+  std::cout << "Server wird gestoppt..." << std::endl; */
   adapter.stop();
   return 0;
 }

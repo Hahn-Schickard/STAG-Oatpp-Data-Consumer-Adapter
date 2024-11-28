@@ -1,5 +1,10 @@
 <img src="docs/images/vendor-logo.png" alt="" width="200"/>
 
+## REST-API 
+Rest-Schnittstelle ist über Swagger UI erreichbar.
+[Hier klicken, um Swagger UI zu öffnen](http://localhost:8000/swagger/ui)
+
+> **Hinweis**: Stelle sicher, dass der Server läuft, um auf die Swagger UI zugreifen zu können.
 # Hello World
 
 ## Description
