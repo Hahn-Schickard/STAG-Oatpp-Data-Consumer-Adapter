@@ -1,4 +1,4 @@
-#include "/home/robin/Documents/oatpp-example/sources/includes/Adapter.hpp"
+#include "../../includes/Adapter.hpp"
 #include <memory>
 #include <string>
 #include <vector>
@@ -6,7 +6,7 @@
 namespace Data_Consumer_Adapter {
 Adapter::Adapter(ModelEventSourcePtr event_source)
     : DCAI(event_source, "Rest-Adapter") {
-  server_ = std::make_shared<RestServer>();
+  server_ = makeRestInterface();
 }
 
 void Adapter::start(std::vector<Information_Model::DevicePtr> devices) {

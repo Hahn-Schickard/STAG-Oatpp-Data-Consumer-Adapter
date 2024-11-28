@@ -1,4 +1,4 @@
-#include "/home/robin/Documents/oatpp-example/sources/includes/Adapter.hpp"
+#include "../../includes/Adapter.hpp"
 #include "Event_Model/EventSource.hpp"
 #include "HaSLL/LoggerManager.hpp"
 #include "HaSLL/SPD_LoggerRepository.hpp"
@@ -30,17 +30,9 @@ void registerDevices(const shared_ptr<EventSourceFake>& event_source);
 void deregisterDevices(const shared_ptr<EventSourceFake>& event_source);
 
 void runForTime(int durationSeconds) {
-  auto start = chrono::steady_clock::now();
-  while (true) {
-    auto elapsed = chrono::steady_clock::now() - start;
-    if (chrono::duration_cast<chrono::seconds>(elapsed).count() >=
-        durationSeconds) {
-      cout << "Die Laufzeit von " << durationSeconds
-           << " Sekunden ist abgelaufen." << endl;
-      break;
-    }
-    this_thread::sleep_for(chrono::seconds(1));
-  }
+  cout << "Programm wird nach " << durationSeconds << " Sekunden gestoppt"
+       << endl;
+  this_thread::sleep_for(chrono::seconds(durationSeconds));
 }
 
 void waitForQuit() {
@@ -69,14 +61,6 @@ int main(int argc, char* argv[]) {
   } else {
     waitForQuit();
   }
-
-  /* std::cout << "Drücke 'q', um den Server zu stoppen." << std::endl;
-  char userInput;
-  while (std::tolower(std::cin.get()) != 'q') {
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-  }
-
-  std::cout << "Server wird gestoppt..." << std::endl; */
   adapter.stop();
   return 0;
 }
