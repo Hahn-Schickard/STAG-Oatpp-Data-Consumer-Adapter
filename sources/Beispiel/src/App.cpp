@@ -1,23 +1,22 @@
 #include "App.hpp"
+#include "../../../includes/RestInterface.hpp"
 #include "AppComponent.hpp"
-
 #include "controller/MyController.hpp"
-
 #include "oatpp-swagger/Controller.hpp"
+
+RestInterfacePtr makeRestInterface() { return std::make_shared<RestServer>(); }
 
 RestServer::RestServer() : stopFlag(false) {
   oatpp::base::Environment::init();
-  /* Register Components in scope of run() method */
   AppComponent components;
 
-  /* Get router component */
   OATPP_COMPONENT(std::shared_ptr<oatpp::web::server::HttpRouter>, router);
 
   oatpp::web::server::api::Endpoints docEndpoints;
 
   /* Create MyController and add all of its endpoints to router */
-  auto myController = std::make_shared<MyController>(devices_);
-  docEndpoints.append(router->addController(myController)->getEndpoints());
+  auto my_controller = std::make_shared<MyController>(devices_);
+  docEndpoints.append(router->addController(my_controller)->getEndpoints());
   router->addController(oatpp::swagger::Controller::createShared(docEndpoints));
 
   /* Get connection handler component */

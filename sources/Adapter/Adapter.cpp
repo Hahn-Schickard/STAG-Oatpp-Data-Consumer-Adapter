@@ -5,7 +5,7 @@
 
 namespace Data_Consumer_Adapter {
 Adapter::Adapter(ModelEventSourcePtr event_source)
-    : DCAI(event_source, "Rest-Adapter") {
+    : DCAI(std::move(event_source), "Rest-Adapter") {
   server_ = makeRestInterface();
 }
 
