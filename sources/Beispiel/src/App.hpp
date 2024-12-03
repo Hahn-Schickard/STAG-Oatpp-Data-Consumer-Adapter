@@ -1,7 +1,7 @@
 #ifndef App_hpp
 #define App_hpp
-#include "../../../includes/RestInterface.hpp"
 #include "Information_Model/Device.hpp"
+#include "RestInterface.hpp"
 #include <oatpp/network/Server.hpp>
 
 #include <thread>

@@ -1,4 +1,4 @@
-#include "../../includes/Adapter.hpp"
+#include "Adapter.hpp"
 #include "Event_Model/EventSource.hpp"
 #include "HaSLL/LoggerManager.hpp"
 #include "HaSLL/SPD_LoggerRepository.hpp"

@@ -5,8 +5,11 @@ set(THIS Adapter)
 #@- =========================== END OF USER CONFIGURATION ===============================
 
 set(MODULE ${PROJECT_NAME}_${THIS})
+list(APPEND THIS_INCLUDES_DIRS
+            ${INCLUDES_DIR}
+)
 
-
+INCLUDE_DIRS_AND_FILES("${THIS_INCLUDES_DIRS}" THIS_INCLUDES)
 
 file(GLOB sources_list "${CMAKE_CURRENT_LIST_DIR}/*.?pp")
 
@@ -15,6 +18,7 @@ add_library(${MODULE})
 
 target_sources(${MODULE} PRIVATE
                        ${sources_list}
+                       ${THIS_INCLUDES} 
                        
 )
 

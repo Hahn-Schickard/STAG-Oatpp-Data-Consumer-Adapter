@@ -5,6 +5,11 @@ set(THIS Beispiel)
 #@- =========================== END OF USER CONFIGURATION ===============================
 
 set(MODULE ${PROJECT_NAME}_${THIS})
+list(APPEND THIS_INCLUDES_DIRS
+            ${INCLUDES_DIR}
+)
+
+INCLUDE_DIRS_AND_FILES("${THIS_INCLUDES_DIRS}" THIS_INCLUDES)
 
 
 
@@ -18,6 +23,7 @@ target_sources(${MODULE} PRIVATE
                        ${sources_list}
                        ${controller_list}
                        ${dto_list}
+                       ${THIS_INCLUDES} 
 )
 message(info,"OatppResources:${OATPP_SWAGGER_RES_PATH}")
 

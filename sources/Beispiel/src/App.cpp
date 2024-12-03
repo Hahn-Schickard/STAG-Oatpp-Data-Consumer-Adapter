@@ -1,6 +1,6 @@
 #include "App.hpp"
-#include "../../../includes/RestInterface.hpp"
 #include "AppComponent.hpp"
+#include "RestInterface.hpp"
 #include "controller/MyController.hpp"
 #include "oatpp-swagger/Controller.hpp"
 
