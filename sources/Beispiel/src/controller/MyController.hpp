@@ -7,7 +7,7 @@
 #include "oatpp/core/macro/codegen.hpp"
 #include "oatpp/core/macro/component.hpp"
 #include "oatpp/encoding/Base64.hpp"
-//#include "oatpp/encoding/Url.hpp"//
+#include "oatpp/encoding/Url.hpp"
 #include "oatpp/web/server/api/ApiController.hpp"
 #include <iomanip>
 #include <iostream>
@@ -34,9 +34,9 @@ public:
 
   shared_ptr<unordered_map<std::string, Information_Model::NonemptyDevicePtr>>
       devices;
-  std::string decodeBase64(const oatpp::String& encoded) {
-    auto decoded =
-        oatpp::encoding::Base64::decode(encoded->c_str(), encoded->size());
+  std::string decodeUrl(const oatpp::String& encoded) {
+    auto decoded = oatpp::encoding::Url::decode(encoded);
+
     return std::string((const char*)decoded->data(), decoded->size());
   }
 
@@ -391,7 +391,7 @@ public:
 
   ENDPOINT("GET", "/devices/{deviceId}/{encodedElementId}", getElement,
       PATH(String, deviceId), PATH(String, encodedElementId)) {
-    auto elementId = decodeBase64(encodedElementId);
+    auto elementId = decodeUrl(encodedElementId);
     auto deviceIt = devices->find(deviceId);
     if (deviceIt != devices->end()) {
       auto device_ptr = deviceIt->second;
