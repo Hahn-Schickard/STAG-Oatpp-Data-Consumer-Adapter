@@ -6,7 +6,6 @@
 #include "oatpp/core/data/mapping/type/Primitive.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 #include "oatpp/core/macro/component.hpp"
-#include "oatpp/encoding/Base64.hpp"
 #include "oatpp/encoding/Url.hpp"
 #include "oatpp/web/server/api/ApiController.hpp"
 #include <iomanip>
@@ -36,7 +35,6 @@ public:
       devices;
   std::string decodeUrl(const oatpp::String& encoded) {
     auto decoded = oatpp::encoding::Url::decode(encoded);
-
     return std::string((const char*)decoded->data(), decoded->size());
   }
 
@@ -156,12 +154,18 @@ public:
     return metricDto;
   }
   ENDPOINT_INFO(getDeviceValue) {
-    info->summary = "Get Device Value";
-    info->pathParams.add<String>("DeviceValue").description =
-        "Type in ID of your Device";
+    info->summary = "Retrieve a specific Metric from a Device";
+    info->pathParams.add<String>("deviceId").description =
+        "The ID of the device.";
+    info->pathParams.add<String>("getValue").description =
+        "The value to retrieve from the device.";
     info->addResponse<Object<Metric_DTO>>(Status::CODE_200, "application/json");
-    info->addResponse<String>(Status::CODE_404, "text/plain");
+    info->addResponse<String>(
+        Status::CODE_404, "text/plain", "Device not found");
+    info->addResponse<String>(Status::CODE_400, "text/plain",
+        "Bad request or encountered an error while processing the request.");
   }
+
   ENDPOINT("GET", "/devices/{deviceId}/metric/{getValue}", getDeviceValue,
       PATH(String, deviceId), PATH(String, getValue)) {
 
@@ -177,14 +181,19 @@ public:
           auto metricDto = getReadable(metric);
 
           return createDtoResponse(Status::CODE_200, metricDto);
-        } catch (const exception& ex) {
-          return createResponse(Status::CODE_400, "Incorrect Element Value");
+        } catch (const std::exception& ex) {
+          return createResponse(Status::CODE_400,
+              "Invalid metric value for device: " + deviceId +
+                  ". Exception: " + ex.what());
         }
-      } catch (const exception& ex) {
-        return createResponse(Status::CODE_404, "Element not found");
+      } catch (const std::exception& ex) {
+        return createResponse(Status::CODE_400,
+            "Failed to retrieve device element for device: " + deviceId +
+                ". Exception: " + ex.what());
       }
     } else {
-      return createResponse(Status::CODE_404, "Device not found!");
+      return createResponse(
+          Status::CODE_404, "Device with ID " + deviceId + " not found.");
     }
   }
   Metric_DTOPtr getWriteable(
@@ -242,12 +251,18 @@ public:
     return metricDto;
   }
   ENDPOINT_INFO(getWritableMetric) {
-    info->summary = "Get Writable Metric";
-    info->pathParams.add<String>("WritableMetric").description =
-        "Type in ID of your Device";
+    info->summary = "Return Writable Metric Value from a Device";
+    info->pathParams.add<String>("deviceId").description =
+        "The ID of the device.";
+    info->pathParams.add<String>("metricId").description =
+        "The ID of the metric to be updated.";
     info->addResponse<Object<Metric_DTO>>(Status::CODE_200, "application/json");
-    info->addResponse<String>(Status::CODE_404, "text/plain");
+    info->addResponse<String>(
+        Status::CODE_404, "text/plain", "Device or metric not found");
+    info->addResponse<String>(Status::CODE_400, "text/plain",
+        "Bad request or error retrieving metric");
   }
+
   ENDPOINT("GET", "/devices/{deviceId}/metrics/{metricId}", getWritableMetric,
       PATH(String, deviceId), PATH(String, metricId)) {
 
@@ -262,22 +277,34 @@ public:
           auto writableMetric = getWriteable(metric);
           return createDtoResponse(Status::CODE_200, writableMetric);
         } else {
-          return createResponse(Status::CODE_404, "Metric not found!");
+          return createResponse(Status::CODE_404,
+              "Metric with ID " + metricId + " not found for device " +
+                  deviceId);
         }
       } catch (const std::exception& ex) {
-        return createResponse(Status::CODE_500, "Error retrieving metric");
+        return createResponse(Status::CODE_400,
+            "Bad request or error retrieving metric for device " + deviceId +
+                ". Exception: " + ex.what());
       }
     } else {
-      return createResponse(Status::CODE_404, "Device not found");
+      return createResponse(
+          Status::CODE_404, "Device with ID " + deviceId + " not found");
     }
   }
   ENDPOINT_INFO(putWritableMetric) {
-    info->summary = "Put Writabable Metric";
-    info->pathParams.add<String>("WritableMetric").description =
-        "Type in ID of your Device.";
+    info->summary = "Update Writable Metric on a Device";
+    info->pathParams.add<String>("deviceId").description =
+        "The ID of the device.";
+    info->pathParams.add<String>("metricId").description =
+        "The ID of the metric to be updated.";
+
     info->addResponse<Object<Device_DTO>>(Status::CODE_200, "application/json");
-    info->addResponse<String>(Status::CODE_404, "text/plain");
+    info->addResponse<String>(
+        Status::CODE_404, "text/plain", "Device or metric not found");
+    info->addResponse<String>(
+        Status::CODE_400, "text/plain", "Bad request or error updating metric");
   }
+
   ENDPOINT("PUT", "/devices/{deviceId}/metrics/{metricId}", putWritableMetric,
       PATH(String, deviceId), PATH(String, metricId)) {
 
@@ -289,18 +316,23 @@ public:
         if (element != nullptr) {
           auto metric = std::get<Information_Model::NonemptyMetricPtr>(
               element->functionality);
-          /* metric->setMetricValue(newValue);
-           */
+          // metric->setMetricValue(newValue); // Aktualisierung der Metrik,
+          // falls notwendig
           return createResponse(
               Status::CODE_200, "Metric updated successfully");
         } else {
-          return createResponse(Status::CODE_404, "Metric not found");
+          return createResponse(Status::CODE_404,
+              "Metric with ID " + metricId + " not found for device " +
+                  deviceId);
         }
       } catch (const std::exception& ex) {
-        return createResponse(Status::CODE_500, "Error updating metric");
+        return createResponse(Status::CODE_400,
+            "Bad request or error updating metric for device " + deviceId +
+                ". Exception: " + ex.what());
       }
     } else {
-      return createResponse(Status::CODE_404, "Device not found");
+      return createResponse(
+          Status::CODE_404, "Device with ID " + deviceId + " not found");
     }
   }
 
@@ -316,27 +348,37 @@ public:
   }
 
   ENDPOINT_INFO(getDevices) {
-    info->summary = "Get Devices";
-    info->pathParams.add<String>("GetDevices").description =
-        "Type in ID of your Device.";
-    info->addResponse<Object<Device_DTO>>(Status::CODE_200, "application/json");
-    info->addResponse<String>(Status::CODE_404, "text/plain");
+    info->summary = "Get a list of all available devices";
+    info->pathParams.add<String>("deviceId").description =
+        "The unique ID of the device";
+    info->addResponse<String>(Status::CODE_200, "text/plain",
+        "List of device IDs returned successfully.");
+    info->addResponse<String>(Status::CODE_400, "text/plain",
+        "An error occurred while retrieving the devices.");
   }
 
   ENDPOINT("GET", "/devices", getDevices) {
-    std::string result;
-    for (const auto& device : *devices) {
-      result += device.first + " ";
+    try {
+      std::string result;
+      for (const auto& device : *devices) {
+        result += device.first + " ";
+      }
+      return createResponse(
+          Status::CODE_200, result.empty() ? "No devices found." : result);
+    } catch (const std::exception& ex) {
+      return createResponse(Status::CODE_400,
+          "Failed to retrieve devices. Exception: " + std::string(ex.what()));
     }
-    return createResponse(Status::CODE_200, result);
   }
 
   ENDPOINT_INFO(checkdevice) {
-    info->summary = "Check Device";
+    info->summary = "Retrieve details of a specific device.";
     info->pathParams.add<String>("deviceId").description =
-        "Unique identifier for the device.";
-    info->addResponse<Object<Device_DTO>>(Status::CODE_200, "application/json");
-    info->addResponse<String>(Status::CODE_404, "text/plain");
+        "The unique ID of the device.";
+    info->addResponse<Object<Device_DTO>>(Status::CODE_200, "application/json",
+        "Device details returned successfully.");
+    info->addResponse<String>(
+        Status::CODE_404, "text/plain", "Device with the given ID not found.");
   }
 
   ENDPOINT("GET", "/devices/{deviceId}", checkdevice, PATH(String, deviceId)) {
@@ -356,15 +398,17 @@ public:
   }
 
   ENDPOINT_INFO(getElementType) {
-    info->summary = "Get Device Element Type";
+    info->summary = "Retrieve the type of a specific device element.";
     info->pathParams.add<String>("deviceId").description =
         "Unique identifier of the device containing the element.";
     info->pathParams.add<String>("elementId").description =
         "Unique identifier of the element within the device.";
     info->addResponse<Object<DeviceElement_DTO>>(
         Status::CODE_200, "application/json");
-    info->addResponse<String>(Status::CODE_404, "text/plain");
-    info->addResponse<String>(Status::CODE_500, "text/plain");
+    info->addResponse<String>(
+        Status::CODE_404, "text/plain", "Device or element not found.");
+    info->addResponse<String>(Status::CODE_400, "text/plain",
+        "Bad request or error retrieving element.");
   }
 
   ENDPOINT("GET", "/devices/{deviceId}/{elementId}/type", getElementType,
@@ -382,35 +426,55 @@ public:
           return createResponse(Status::CODE_404, "Element not found!");
         }
       } catch (const std::exception& ex) {
-        return createResponse(
-            Status::CODE_404, string("Exception Error ") + ex.what());
+        return createResponse(Status::CODE_400,
+            string("Bad request or error retrieving element: ") + ex.what());
       }
     }
     return createResponse(Status::CODE_404, "Device not found!");
   }
 
+  ENDPOINT_INFO(getElement) {
+    info->summary = "Retrieve a device element by its ID.";
+    info->pathParams.add<String>("deviceId").description =
+        "The unique identifier of the device containing the element.";
+    info->pathParams.add<String>("encodedElementId").description =
+        "The encoded unique identifier of the element within the device.";
+
+    info->addResponse<Object<DeviceElement_DTO>>(Status::CODE_200,
+        "application/json", "Successfully retrieved the device element.");
+    info->addResponse<String>(
+        Status::CODE_404, "text/plain", "Device or element not found.");
+    info->addResponse<String>(Status::CODE_400, "text/plain",
+        "Bad request or error processing the element retrieval.");
+  }
+
   ENDPOINT("GET", "/devices/{deviceId}/{encodedElementId}", getElement,
       PATH(String, deviceId), PATH(String, encodedElementId)) {
+
     auto elementId = decodeUrl(encodedElementId);
     auto deviceIt = devices->find(deviceId);
     if (deviceIt != devices->end()) {
       auto device_ptr = deviceIt->second;
-      try {
 
-        auto element = device_ptr->getDeviceElement(deviceId);
+      try {
+        auto element = device_ptr->getDeviceElement(elementId);
         if (element != nullptr) {
           return createDtoResponse(Status::CODE_200, getDeviceElement(element));
         } else {
-          return createResponse(Status::CODE_404, "Element not found!");
+          return createResponse(
+              Status::CODE_404, "Element with ID " + elementId + " not found!");
         }
       } catch (const std::exception& ex) {
-        return createResponse(Status::CODE_404, "Device not found!");
+        return createResponse(Status::CODE_400,
+            "Encountered an error while processing the request for device: " +
+                deviceId + " and element: " + elementId +
+                ". Exception: " + ex.what());
       }
     } else {
-      return createResponse(Status::CODE_404, "Device not found");
+      return createResponse(
+          Status::CODE_404, "Device with ID " + deviceId + " not found.");
     }
   }
 };
-
 #include OATPP_CODEGEN_END(ApiController)
 #endif
