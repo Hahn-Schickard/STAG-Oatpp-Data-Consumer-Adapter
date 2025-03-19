@@ -49,24 +49,3 @@ install(
 )
 
 
-if(WIN32)
-    add_custom_command(TARGET ${MODULE_NAME} POST_BUILD
-                        COMMAND ${CMAKE_COMMAND} -E copy
-                        -t $<TARGET_FILE_DIR:${MODULE_NAME}>
-                        $<TARGET_RUNTIME_DLLS:${MODULE_NAME}>
-                        COMMAND_EXPAND_LISTS
-    )
-    # Workaround to get conan .dll files into build
-    foreach(directory ${CONAN_RUNTIME_LIB_DIRS})
-        file(GLOB dir_dependencies "${directory}/*.dll")
-        if(dir_dependencies)
-            list(APPEND dependencies "${dir_dependencies}")
-        endif()
-    endforeach()
-    add_custom_command(TARGET ${MODULE_NAME} POST_BUILD
-                        COMMAND ${CMAKE_COMMAND} -E copy
-                        -t $<TARGET_FILE_DIR:${MODULE_NAME}>
-                        ${dependencies}
-                        COMMAND_EXPAND_LISTS
-    )
-endif()
