@@ -349,8 +349,6 @@ public:
 
   ENDPOINT_INFO(getDevices) {
     info->summary = "Get a list of all available devices";
-    info->pathParams.add<String>("deviceId").description =
-        "The unique ID of the device";
     info->addResponse<String>(Status::CODE_200, "text/plain",
         "List of device IDs returned successfully.");
     info->addResponse<String>(Status::CODE_400, "text/plain",
