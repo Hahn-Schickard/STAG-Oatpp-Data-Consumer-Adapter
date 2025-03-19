@@ -1,12 +1,12 @@
 {
     "project_template": "cpp",
-    "project_template_version": "0.2.10",
+    "project_template_version": "0.2.12",
     "project_name_long": "Hello World",
     "project_name_short": "hello",
     "project_description": "Hey ",
     "license": "GPLv3",
     "ci_configuration": "single-system-cached",
     "gitignore": true,
-    "code_formatting": true,
-    "contribution_guide": true
+    "contribution_guide": true,
+    "code_formatting": true
 }

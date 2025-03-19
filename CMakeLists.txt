@@ -25,7 +25,7 @@ option(RUN_TESTS "Enables Unit tests runner (Requires GTest framework)" ON)
 option(COVERAGE_TRACKING "Enable code test coverage tracking with gcov" ON)
 
 if(NOT WIN32)
-    option(STATIC_CODE_ANALYSIS "Enable Code Linter" OFF)
+    option(STATIC_CODE_ANALYSIS "Enable Code Linter" ON)
 endif()
 
 include(GNUInstallDirs)
@@ -36,10 +36,15 @@ include(compiler_settings)
 #@+ ====================== User CMAKE_OPTIONS configuration ========================
 # User defined options and cmake variables are set here
 #@- ===================== END OF USER CONFIGURATION ================================
-find_package(GTest REQUIRED)
 #@+ ==================== User CMAKE_INCLUDES configuration =======================
 # User defined cmake module includes go here
 #@- ======================== END OF USER CONFIGURATION ============================
+
+find_package(GTest REQUIRED)
+
+#@+ ======================== User PACKAGES configuration ===========================
+# User required find_package() calls go here
+#@- ========================= END OF USER CONFIGURATION ============================
 
 if(CMAKE_CONAN)
     include(${CMAKE_BINARY_DIR}/conan/build/${CMAKE_BUILD_TYPE}/generators/conan_toolchain.cmake)
