@@ -1,14 +1,12 @@
 #include "Adapter.hpp"
 #include "Event_Model/EventSource.hpp"
 #include "HaSLL/LoggerManager.hpp"
-#include "HaSLL/SPD_LoggerRepository.hpp"
 #include "Information_Model/mocks/DeviceMockBuilder.hpp"
 #include "Information_Model/mocks/Metric_MOCK.hpp"
 #include <iostream>
 
 using ::testing::NiceMock;
 using namespace std;
-using namespace HaSLI;
 using namespace HaSLL;
 using namespace Information_Model;
 using namespace Data_Consumer_Adapter;
@@ -46,8 +44,7 @@ void waitForQuit() {
   }
 }
 int main(int argc, char* argv[]) {
-  auto repo = make_shared<SPD_LoggerRepository>();
-  LoggerManager::initialise(repo);
+  LoggerManager::initialise(makeDefaultRepository());
 
   auto event_source = make_shared<EventSourceFake>();
   auto adapter = Adapter(event_source);
@@ -77,26 +74,26 @@ Information_Model::NonemptyDevicePtr buildDevice1() {
         "Power", "Groups information regarding the power supply");
     mock_builder->addReadableMetric(subgroup_1_ref_id, "Power",
         "Indicates if system is running on batter power",
-        Information_Model::DataType::BOOLEAN,
+        Information_Model::DataType::Boolean,
         []() -> DataVariant { return true; });
     auto subgroup_2_ref_id =
         mock_builder->addDeviceElementGroup(subgroup_1_ref_id, "State",
             "Groups information regarding the power supply");
     mock_builder->addReadableMetric(subgroup_2_ref_id, "Error",
         "Indicates the current error message, regarding power supply",
-        Information_Model::DataType::STRING, []() -> DataVariant {
+        Information_Model::DataType::String, []() -> DataVariant {
           return string("Main Power Supply Interrupted");
         });
     mock_builder->addWritableMetric(
         subgroup_2_ref_id, "Reset Power Supply",
         "Resets power supply and any related error messages",
-        Information_Model::DataType::BOOLEAN,
+        Information_Model::DataType::Boolean,
         [](const DataVariant&) { /*There is nothing to do*/ },
         []() -> DataVariant { return false; });
   }
   mock_builder->addReadableMetric("Temperature",
       "Current measured temperature value in °C",
-      Information_Model::DataType::DOUBLE,
+      Information_Model::DataType::Double,
       []() -> DataVariant { return (double)20.1; }); // NOLINT
 
   return Information_Model::NonemptyDevicePtr(mock_builder->getResult());
@@ -113,13 +110,13 @@ Information_Model::NonemptyDevicePtr buildDevice2() {
         "Phase 1", "Groups first phase's power measurements");
     mock_builder->addReadableMetric(subgroup_1_ref_id, "Voltage",
         "Current measured phase voltage in V",
-        Information_Model::DataType::DOUBLE, []() -> DataVariant {
+        Information_Model::DataType::Double, []() -> DataVariant {
           // NOLINTNEXTLINE(readability-magic-numbers)
           return (double)239.1;
         });
     mock_builder->addReadableMetric(subgroup_1_ref_id, "Current",
         "Current measured phase current in A",
-        Information_Model::DataType::DOUBLE, []() -> DataVariant {
+        Information_Model::DataType::Double, []() -> DataVariant {
           // NOLINTNEXTLINE(readability-magic-numbers)
           return (double)8.8;
         });
@@ -129,13 +126,13 @@ Information_Model::NonemptyDevicePtr buildDevice2() {
         "Phase 2", "Groups second phase's power measurements");
     mock_builder->addReadableMetric(subgroup_1_ref_id, "Voltage",
         "Current measured phase voltage in V",
-        Information_Model::DataType::DOUBLE, []() -> DataVariant {
+        Information_Model::DataType::Double, []() -> DataVariant {
           // NOLINTNEXTLINE(readability-magic-numbers)
           return (double)239.1;
         });
     mock_builder->addReadableMetric(subgroup_1_ref_id, "Current",
         "Current measured phase current in A",
-        Information_Model::DataType::DOUBLE, []() -> DataVariant {
+        Information_Model::DataType::Double, []() -> DataVariant {
           // NOLINTNEXTLINE(readability-magic-numbers)
           return (double)8.8;
         });
@@ -145,13 +142,13 @@ Information_Model::NonemptyDevicePtr buildDevice2() {
         "Phase 3", "Groups third phase's power measurements");
     mock_builder->addReadableMetric(subgroup_1_ref_id, "Voltage",
         "Current measured phase voltage in V",
-        Information_Model::DataType::DOUBLE, []() -> DataVariant {
+        Information_Model::DataType::Double, []() -> DataVariant {
           // NOLINTNEXTLINE(readability-magic-numbers)
           return (double)239.1;
         });
     mock_builder->addReadableMetric(subgroup_1_ref_id, "Current",
         "Current measured phase current in A",
-        Information_Model::DataType::DOUBLE, []() -> DataVariant {
+        Information_Model::DataType::Double, []() -> DataVariant {
           // NOLINTNEXTLINE(readability-magic-numbers)
           return (double)8.8;
         });

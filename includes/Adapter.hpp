@@ -11,11 +11,11 @@ namespace Data_Consumer_Adapter {
 class Adapter : public DCAI {
 public:
   Adapter(ModelEventSourcePtr event_source);
-  void start(std::vector<Information_Model::DevicePtr> devices = {}) override;
+  void start(const DCAI::Devices& devices = {}) override;
   void stop() override;
 
 private:
-  void registrate(Information_Model::NonemptyDevicePtr device) override;
+  void registrate(const Information_Model::NonemptyDevicePtr& device) override;
   void deregistrate(const std::string& device_id) override;
   std::shared_ptr<RestInterface> server_;
 };

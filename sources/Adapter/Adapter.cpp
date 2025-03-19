@@ -9,13 +9,11 @@ Adapter::Adapter(ModelEventSourcePtr event_source)
   server_ = makeRestInterface();
 }
 
-void Adapter::start(std::vector<Information_Model::DevicePtr> devices) {
-  server_->start();
-}
+void Adapter::start(const DCAI::Devices& devices) { server_->start(); }
 
 void Adapter::stop() { server_->stop(); }
 
-void Adapter::registrate(Information_Model::NonemptyDevicePtr device) {
+void Adapter::registrate(const Information_Model::NonemptyDevicePtr& device) {
   server_->add(device);
 }
 void Adapter::deregistrate(const std::string& device_id) {

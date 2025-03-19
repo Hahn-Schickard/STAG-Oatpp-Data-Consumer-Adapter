@@ -46,7 +46,7 @@ public:
     elementDto->name = element->getElementName();
     elementDto->desc = element->getElementDescription();
 
-    if (element->getElementType() == Information_Model::ElementType::GROUP) {
+    if (element->getElementType() == Information_Model::ElementType::Group) {
       auto subelements =
           std::get<Information_Model::NonemptyDeviceElementGroupPtr>(
               element->functionality);
@@ -69,7 +69,7 @@ public:
     auto metricValue = element->getMetricValue();
 
     switch (element->getDataType()) {
-    case Information_Model::DataType::BOOLEAN:
+    case Information_Model::DataType::Boolean:
       std::cout << "DataType is Boolean" << std::endl;
       if (std::holds_alternative<bool>(metricValue)) {
         bool boolValue = std::get<bool>(metricValue);
@@ -81,7 +81,7 @@ public:
       }
       break;
 
-    case Information_Model::DataType::INTEGER:
+    case Information_Model::DataType::Integer:
       std::cout << "DataType is Integer" << std::endl;
       if (std::holds_alternative<intmax_t>(metricValue)) {
         int intValue = std::get<intmax_t>(metricValue);
@@ -93,7 +93,7 @@ public:
       }
       break;
 
-    case Information_Model::DataType::UNSIGNED_INTEGER:
+    case Information_Model::DataType::Unsigned_Integer:
       std::cout << "DataType is Unsigned Integer" << std::endl;
       if (std::holds_alternative<uintmax_t>(metricValue)) {
         unsigned int uintValue = std::get<uintmax_t>(metricValue);
@@ -106,7 +106,7 @@ public:
       }
       break;
 
-    case Information_Model::DataType::DOUBLE:
+    case Information_Model::DataType::Double:
       std::cout << "DataType is Double" << std::endl;
       if (std::holds_alternative<double>(metricValue)) {
         double doubleValue = std::get<double>(metricValue);
@@ -118,7 +118,7 @@ public:
       }
       break;
 
-    case Information_Model::DataType::STRING:
+    case Information_Model::DataType::String:
       std::cout << "DataType is String" << std::endl;
       if (std::holds_alternative<std::string>(metricValue)) {
         std::string stringValue = std::get<std::string>(metricValue);
@@ -129,7 +129,7 @@ public:
       }
       break;
 
-    case Information_Model::DataType::OPAQUE:
+    case Information_Model::DataType::Opaque:
       std::cout << "DataType is Opaque" << std::endl;
       if (std::holds_alternative<std::vector<uint8_t>>(metricValue)) {
         auto opaqueValue = std::get<std::vector<uint8_t>>(metricValue);
@@ -202,42 +202,42 @@ public:
     auto metricValue = element->getMetricValue();
 
     switch (element->getDataType()) {
-    case Information_Model::DataType::BOOLEAN:
+    case Information_Model::DataType::Boolean:
       if (std::holds_alternative<bool>(metricValue)) {
         bool boolValue = std::get<bool>(metricValue);
         metricDto->value = to_string(boolValue);
       }
       break;
 
-    case Information_Model::DataType::INTEGER:
+    case Information_Model::DataType::Integer:
       if (std::holds_alternative<intmax_t>(metricValue)) {
         int intValue = std::get<intmax_t>(metricValue);
         metricDto->value = to_string(intValue);
       }
       break;
 
-    case Information_Model::DataType::UNSIGNED_INTEGER:
+    case Information_Model::DataType::Unsigned_Integer:
       if (std::holds_alternative<uintmax_t>(metricValue)) {
         unsigned int uintValue = std::get<uintmax_t>(metricValue);
         metricDto->value = to_string(uintValue);
       }
       break;
 
-    case Information_Model::DataType::DOUBLE:
+    case Information_Model::DataType::Double:
       if (std::holds_alternative<double>(metricValue)) {
         double doubleValue = std::get<double>(metricValue);
         metricDto->value = to_string(doubleValue);
       }
       break;
 
-    case Information_Model::DataType::STRING:
+    case Information_Model::DataType::String:
       if (std::holds_alternative<std::string>(metricValue)) {
         std::string stringValue = std::get<std::string>(metricValue);
         metricDto->value = stringValue;
       }
       break;
 
-    case Information_Model::DataType::OPAQUE:
+    case Information_Model::DataType::Opaque:
       if (std::holds_alternative<std::vector<uint8_t>>(metricValue)) {
         auto opaqueValue = std::get<std::vector<uint8_t>>(metricValue);
         metricDto->value = "Opaque data (Base64)";
