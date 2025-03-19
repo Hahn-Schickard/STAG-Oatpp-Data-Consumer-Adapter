@@ -7,7 +7,7 @@ if(CMAKE_CONAN)
 endif()
 
 #@+ ======================== User PROJECT_NAME configuration ============================
-set(THIS hello)
+set(THIS REST_DCA)
 #@- =========================== END OF USER CONFIGURATION ===============================
 
 project(${THIS} CXX)

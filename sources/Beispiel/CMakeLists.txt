@@ -41,6 +41,18 @@ target_link_libraries(${MODULE}
 target_compile_definitions(${MODULE} PUBLIC OATPP_SWAGGER_RES_PATH="${oatpp-swagger_INCLUDE_DIR}/../bin/oatpp-swagger/res")
 target_compile_features(${MODULE} PUBLIC cxx_std_17)
 
+install(
+    TARGETS ${MODULE}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+install(
+    FILES ${THIS_INCLUDES}
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
+)
+
 if(WIN32)
     add_custom_command(TARGET ${MODULE_NAME} POST_BUILD
                         COMMAND ${CMAKE_COMMAND} -E copy

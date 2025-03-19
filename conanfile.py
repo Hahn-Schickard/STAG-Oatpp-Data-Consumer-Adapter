@@ -97,7 +97,7 @@ class PackageConan(ConanFile):
         self.cpp_info.libs = collect_libs(self)
         self.cpp_info.set_property("cmake_find_mode", "both")
         # @+ START USER DEFINES
-        project_name = to_camel_case(self.name)
+        project_name = "REST_DCA"
         # @- END USER DEFINES
         self.cpp_info.set_property("cmake_file_name", project_name)
         cmake_target_name = project_name + "::" + project_name
