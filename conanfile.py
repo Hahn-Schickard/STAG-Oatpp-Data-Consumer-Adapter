@@ -62,7 +62,9 @@ class PackageConan(ConanFile):
 
     def configure(self):
         # @+ START USER REQUIREMENTS OPTION CONFIGURATIONSS
-        pass
+        self.options["gtest"].shared = True
+        self.options["oatpp"].shared = True
+        self.options["oatpp-swagger"].shared = True
         # @- END USER REQUIREMENTS OPTION CONFIGURATION
 
     def layout(self):
