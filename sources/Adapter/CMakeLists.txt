@@ -5,14 +5,14 @@ set(THIS Adapter)
 #@- =========================== END OF USER CONFIGURATION ===============================
 
 set(MODULE ${PROJECT_NAME}_${THIS})
+
 list(APPEND THIS_INCLUDES_DIRS
-            ${INCLUDES_DIR}
+            ${PUBLIC_INCLUDES_DIR}
 )
 
 INCLUDE_DIRS_AND_FILES("${THIS_INCLUDES_DIRS}" THIS_INCLUDES)
 
-file(GLOB sources_list "${CMAKE_CURRENT_LIST_DIR}/*.?pp")
-
+file(GLOB sources_list "${CMAKE_CURRENT_LIST_DIR}/*.cpp")
 
 add_library(${MODULE})
 
@@ -22,17 +22,21 @@ target_sources(${MODULE} PRIVATE
                        
 )
 
-
 #@+ ======================== User DEPENDENCIES configuration ============================
 target_link_libraries(${MODULE}
-PUBLIC
-                       #Private dependencies
+                      PUBLIC
                       Data_Consumer_Adapter_Interface::Data_Consumer_Adapter_Interface
-                     ${PROJECT_NAME}_Beispiel
-                        #Public dependencies
+                      PRIVATE 
+                      ${PROJECT_NAME}_Controller                        
 )
 #@- =========================== END OF USER CONFIGURATION ===============================
 
+target_include_directories(${MODULE} INTERFACE
+                           $<BUILD_INTERFACE:${PUBLIC_INCLUDES_DIR}>
+                           $<BUILD_INTERFACE:${PRIVATE_INCLUDES_DIR}>
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+                           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>
+)
 
 target_compile_features(${MODULE} PUBLIC cxx_std_17)
 

@@ -1,7 +1,7 @@
 #ifndef MyController_hpp
 #define MyController_hpp
 
-#include "../dto/DTOs.hpp"
+#include "DTOs.hpp"
 #include "Information_Model/Device.hpp"
 #include "oatpp/core/data/mapping/type/Primitive.hpp"
 #include "oatpp/core/macro/codegen.hpp"

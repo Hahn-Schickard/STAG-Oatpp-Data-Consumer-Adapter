@@ -17,7 +17,6 @@ target_sources(${THIS} PRIVATE
 )
 
 target_link_libraries(${THIS} 
-                      ${PROJECT_NAME}_Beispiel
                       ${PROJECT_NAME}_Adapter
 )
 

@@ -1,4 +1,4 @@
-#include "../../includes/Adapter.hpp"
+#include "Adapter.hpp"
 #include <memory>
 #include <string>
 #include <vector>
