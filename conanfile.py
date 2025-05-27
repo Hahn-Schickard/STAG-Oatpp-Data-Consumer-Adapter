@@ -53,8 +53,11 @@ class PackageConan(ConanFile):
         self.requires("oatpp/1.3.0.latest")
         self.requires("oatpp-swagger/1.3.0@hahn-schickard/stable")
         self.requires("data_consumer_adapter_interface/[~0.3]@hahn-schickard/stable",
-                      headers=True, libs=True, transitive_headers=True, transitive_libs=True)
-
+                      headers=True, 
+                      libs=True,
+                      transitive_headers=True,
+                      transitive_libs=True
+        )
         # @- END USER REQUIREMENTS
 
     def build_requirements(self):
