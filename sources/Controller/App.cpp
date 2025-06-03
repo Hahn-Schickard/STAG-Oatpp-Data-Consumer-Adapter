@@ -31,7 +31,7 @@ RestServer::RestServer() : stopFlag(false) {
         connectionProvider, connectionHandler);
 
   /* Print info about server port */
-  OATPP_LOGI("STAG_REST_DCA", "Swagger UI available at %s:%s/swagger/ui",
+  OATPP_LOGI("STAG_REST_DCA", "Swagger UI available at http://%s:%s/swagger/ui",
         connectionProvider->getProperty("host").getData(),
         connectionProvider->getProperty("port").getData());
 }
