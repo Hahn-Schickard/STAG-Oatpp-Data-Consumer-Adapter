@@ -10,6 +10,7 @@ using namespace std;
 using namespace HaSLL;
 using namespace Information_Model;
 using namespace Data_Consumer_Adapter;
+
 class EventSourceFake : public Event_Model::EventSource<ModelRepositoryEvent> {
   void handleException(exception_ptr eptr) { // NOLINT
     if (eptr) {
@@ -24,41 +25,34 @@ public:
 
   void sendEvent(const ModelRepositoryEventPtr& event) { notify(event); }
 };
+
 void registerDevices(const shared_ptr<EventSourceFake>& event_source);
 void deregisterDevices(const shared_ptr<EventSourceFake>& event_source);
 
-void runForTime(int durationSeconds) {
-  cout << "Programm wird nach " << durationSeconds << " Sekunden gestoppt"
-       << endl;
-  this_thread::sleep_for(chrono::seconds(durationSeconds));
-}
-
-void waitForQuit() {
-  cout << "Drücke 'Q' zum Beenden..." << endl;
-  while (true) {
-    if (tolower(cin.get()) == 'q') {
-      cout << "Programm wird gestoppt..." << endl;
-      break;
-    }
-    this_thread::sleep_for(chrono::seconds(1));
-  }
-}
 int main(int argc, char* argv[]) {
   LoggerManager::initialise(makeDefaultRepository());
 
-  auto event_source = make_shared<EventSourceFake>();
-  auto adapter = Adapter(event_source);
-  registerDevices(event_source);
-  adapter.start();
+  try {
+    auto event_source = make_shared<EventSourceFake>();
+    auto adapter = make_shared<Adapter>(event_source);
+    registerDevices(event_source);
+    adapter->start();
 
-  if (argc == 2) {
-    int duration = stoi(argv[1]);
-    cout << "Runner läuft für " << duration << "Sekunden" << endl;
-    runForTime(duration);
-  } else {
-    waitForQuit();
+    if (argc > 1) {
+      cout << "Press letter Q to stop the program" << endl;
+      while (tolower(cin.get()) != 'q') {
+        this_thread::sleep_for(1s);
+      }
+    } else {
+      this_thread::sleep_for(2s);
+    }
+
+    adapter->stop();
+  } catch (const exception& ex) {
+    cerr << ex.what() << endl;
   }
-  adapter.stop();
+
+  LoggerManager::terminate();
   return 0;
 }
 const static vector<string> device_ids{"base_id_1", "base_id_2"};
